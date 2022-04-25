@@ -62,4 +62,5 @@ class CleanTweets:
 
 if __name__ == "__main__":
     tweet_df = pd.read_csv("C:/Users/Gezahegne/AppData/Local/Packages/CanonicalGroupLimited.UbuntuonWindows_79rhkp1fndgsc/LocalState/rootfs/home/10Acadamy/Twitter-Data-Analysis/Economic_Twitter_Data.csv")
+    #print(type(tweet_df))
     cleaner = CleanTweets(tweet_df)
