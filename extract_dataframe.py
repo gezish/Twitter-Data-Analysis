@@ -1,6 +1,13 @@
 import json
 import pandas as pd
 from textblob import TextBlob
+from zipfile import ZipFile
+
+
+with ZipFile('C:/Users/Gezahegne/AppData/Local/Packages/CanonicalGroupLimited.UbuntuonWindows_79rhkp1fndgsc/LocalState/rootfs/home/10Acadamy/Twitter-Data-Analysis/data/Economic_Twitter_Data.zip', 'r') as zipObj:
+   # Extract all the contents of zip file in current directory
+   zipObj.extractall()
+   
 
 def read_json(json_file: str)->list:
     """
@@ -165,7 +172,7 @@ class TweetDfExtractor:
         df = pd.DataFrame(data=data, columns=columns)
         
         if save:
-            df.to_csv('processed_tweet_data.csv', index=False)
+            df.to_csv('C:/Users/Gezahegne/AppData/Local/Packages/CanonicalGroupLimited.UbuntuonWindows_79rhkp1fndgsc/LocalState/rootfs/home/10Acadamy/Twitter-Data-Analysis/Economic_Twitter_Data.csv', index=False)
             print('File Successfully Saved.!!!')
             
         return df
@@ -187,7 +194,7 @@ def find_full_text(self)->list:
 
 if __name__ == "__main__":
     
-    _, tweet_list = read_json("covid19.json")
+    _, tweet_list = read_json("Economic_Twitter_Data.json")
     
     tweet = TweetDfExtractor(tweet_list)
     df = tweet.get_tweet_df()
