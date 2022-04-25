@@ -4,9 +4,9 @@ from textblob import TextBlob
 from zipfile import ZipFile
 
 
-with ZipFile('C:/Users/Gezahegne/AppData/Local/Packages/CanonicalGroupLimited.UbuntuonWindows_79rhkp1fndgsc/LocalState/rootfs/home/10Acadamy/Twitter-Data-Analysis/data/Economic_Twitter_Data.zip', 'r') as zipObj:
+'''with ZipFile('C:/Users/Gezahegne/AppData/Local/Packages/CanonicalGroupLimited.UbuntuonWindows_79rhkp1fndgsc/LocalState/rootfs/home/10Acadamy/Twitter-Data-Analysis/data/Economic_Twitter_Data.zip', 'r') as zipObj:
    # Extract all the contents of zip file in current directory
-   zipObj.extractall()
+   zipObj.extractall()'''
    
 
 def read_json(json_file: str)->list:
@@ -25,7 +25,7 @@ def read_json(json_file: str)->list:
     for tweets in open(json_file,'r'):
         tweets_data.append(json.loads(tweets))
     
-    
+    print(len(tweets_data))
     return len(tweets_data), tweets_data
     
 class TweetDfExtractor:
@@ -37,12 +37,13 @@ class TweetDfExtractor:
     dataframe
     """
     def __init__(self, tweets_list):
-        
+        #print(type(tweets_list))
         self.tweets_list = tweets_list
 
     def find_statuses_count(self)->list:
         statuses_count = [x['user']['statuses_count'] for x in self.tweets_list]
-
+        
+        print(type(statuses_count))
         return statuses_count
         
     def find_full_text(self)->list:
@@ -51,7 +52,7 @@ class TweetDfExtractor:
             if 'retweeted_status' in tweet.keys() and 'extended_tweet' in tweet['retweeted_status'].keys():
                 text.append(tweet['retweeted_status']['extended_tweet']['full_text'])
             else: text.append('Empty')
-
+        #print(type(tweet))    
         return text       
     
     def find_sentiments(self, text:list)->list:
@@ -61,17 +62,18 @@ class TweetDfExtractor:
             sentiment = blob.sentiment
             polarity.append(sentiment.polarity)
             subjectivity.append(sentiment.subjectivity)
-
+            
+        #print(type(polarity))
         return polarity, subjectivity
 
     def find_created_time(self)->list:
         created_at = [x['created_at'] for x in self.tweets_list]
-
+        #print(type(created_at))
         return created_at
 
     def find_source(self)->list:
         source = [x['source'] for x in self.tweets_list]
-
+        #print(type(source))
         return source
 
     def find_screen_name(self)->list:
@@ -145,10 +147,10 @@ class TweetDfExtractor:
         location = []
         for tweet in self.tweets_list:
             location.append(tweet['user']['location'])
-            
+        #print(type(location))    
         return location
     
-    def get_tweet_df(self, save=False)->pd.DataFrame:
+    def get_tweet_df(self, save=True)->pd.DataFrame:
         """required column to be generated you should be creative and add more features"""
         
         columns = ['created_at', 'source', 'original_text','polarity','subjectivity', 'lang', 'favorite_count', 'retweet_count', 
@@ -170,6 +172,7 @@ class TweetDfExtractor:
         location = self.find_location()
         data = zip(created_at, source, text, polarity, subjectivity, lang, fav_count, retweet_count, screen_name, follower_count, friends_count, sensitivity, hashtags, mentions, location)
         df = pd.DataFrame(data=data, columns=columns)
+        #print(type(df))
         
         if save:
             df.to_csv('C:/Users/Gezahegne/AppData/Local/Packages/CanonicalGroupLimited.UbuntuonWindows_79rhkp1fndgsc/LocalState/rootfs/home/10Acadamy/Twitter-Data-Analysis/Economic_Twitter_Data.csv', index=False)
@@ -194,7 +197,8 @@ def find_full_text(self)->list:
 
 if __name__ == "__main__":
     
-    _, tweet_list = read_json("Economic_Twitter_Data.json")
-    
+    _, tweet_list = read_json("C:/Users/Gezahegne/AppData/Local/Packages/CanonicalGroupLimited.UbuntuonWindows_79rhkp1fndgsc/LocalState/rootfs/home/10Acadamy/Twitter-Data-Analysis/Economic_Twitter_Data.json")
+    #print(type(tweet_list))
     tweet = TweetDfExtractor(tweet_list)
+    #print(type(tweet))
     df = tweet.get_tweet_df()
