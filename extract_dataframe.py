@@ -1,161 +1,144 @@
 import json
 import pandas as pd
 from textblob import TextBlob
-from zipfile import ZipFile
+import zipfile
 
 
-'''with ZipFile('C:/Users/Gezahegne/AppData/Local/Packages/CanonicalGroupLimited.UbuntuonWindows_79rhkp1fndgsc/LocalState/rootfs/home/10Acadamy/Twitter-Data-Analysis/data/Economic_Twitter_Data.zip', 'r') as zipObj:
-   # Extract all the contents of zip file in current directory
-   zipObj.extractall()'''
-   
-
-def read_json(json_file: str)->list:
-    """
-    json file reader to open and read json files into a list
-    Args:
-    -----
-    json_file: str - path of a json file
-    
-    Returns
-    -------
-    length of the json file and a list of json
-    """
-    
+def read_json(json_file: str) -> list:
     tweets_data = []
-    for tweets in open(json_file,'r'):
+    # https://stackoverflow.com/questions/40824807/reading-zipped-json-files
+    # this is the source I found this zip extractor code
+
+    with zipfile.ZipFile(json_file, 'r') as zip_ref:
+        zip_ref.extractall("data/")
+
+    # It says large files detected in github and I can't push any code's
+    # so I hide this unziped json data in .gitignore
+    for tweets in open("data/Economic_Twitter_Data.json", 'r'):
         tweets_data.append(json.loads(tweets))
-    
-    print(len(tweets_data))
     return len(tweets_data), tweets_data
-    
+
+
 class TweetDfExtractor:
-    """
-    this function will parse tweets json into a pandas dataframe
-    
-    Return
-    ------
-    dataframe
-    """
+
     def __init__(self, tweets_list):
-        #print(type(tweets_list))
         self.tweets_list = tweets_list
 
-    def find_statuses_count(self)->list:
-        statuses_count = [x['user']['statuses_count'] for x in self.tweets_list]
-        
-        print(type(statuses_count))
+    def find_statuses_count(self) -> list:
+        statuses_count = []
+        for tweet in self.tweets_list:
+            statuses_count.append(tweet['user']['statuses_count'])
         return statuses_count
-        
-    def find_full_text(self)->list:
+
+    def find_full_text(self) -> list:
         text = []
         for tweet in self.tweets_list:
-            if 'retweeted_status' in tweet.keys() and 'extended_tweet' in tweet['retweeted_status'].keys():
-                text.append(tweet['retweeted_status']['extended_tweet']['full_text'])
-            else: text.append('Empty')
-        #print(type(tweet))    
-        return text       
-    
-    def find_sentiments(self, text:list)->list:
-        polarity, subjectivity = [], []
+            if 'retweeted_status' in tweet.keys() and 'text' in tweet['retweeted_status'].keys():
+                text.append(tweet['retweeted_status']['text'])
+            else:
+                text.append('Empty')
+        return text
+
+    def find_sentiments(self, text: list) -> list:
+        polarity = []
+        subjectivity = []
         for tweet in text:
             blob = TextBlob(tweet)
             sentiment = blob.sentiment
             polarity.append(sentiment.polarity)
             subjectivity.append(sentiment.subjectivity)
-            
-        #print(type(polarity))
         return polarity, subjectivity
 
-    def find_created_time(self)->list:
-        created_at = [x['created_at'] for x in self.tweets_list]
-        #print(type(created_at))
+    def find_created_time(self) -> list:
+        created_at = []
+        for time in self.tweets_list:
+            created_at.append(time['created_at'])
         return created_at
 
-    def find_source(self)->list:
-        source = [x['source'] for x in self.tweets_list]
-        #print(type(source))
+    def find_source(self) -> list:
+        source = []
+        for x in self.tweets_list:
+            source.append(x['source'])
         return source
 
-    def find_screen_name(self)->list:
-        screen_name = [x['user']['screen_name'] for x in self.tweets_list]
-
+    def find_screen_name(self) -> list:
+        screen_name = []
+        for x in self.tweets_list:
+            screen_name.append(x['user']['screen_name'])
         return screen_name
 
-    def find_followers_count(self)->list:
-        followers_count = [x['user']['followers_count'] for x in self.tweets_list]
-
+    def find_followers_count(self) -> list:
+        followers_count = []
+        for x in self.tweets_list:
+            followers_count.append(x['user']['followers_count'])
         return followers_count
 
-    def find_friends_count(self)->list:
-        friends_count = [x['user']['friends_count'] for x in self.tweets_list]
-
+    def find_friends_count(self) -> list:
+        friends_count = []
+        for x in self.tweets_list:
+            friends_count.append(x['user']['friends_count'])
         return friends_count
 
-    def is_sensitive(self)->list:
+    def is_sensitive(self) -> list:
         is_sensitive = []
         for tweet in self.tweets_list:
             if 'possibly_sensitive' in tweet.keys():
                 is_sensitive.append(tweet['possibly_sensitive'])
-            else: is_sensitive.append(None)
-    
+            else:
+                is_sensitive.append(None)
         return is_sensitive
-       
 
-    def find_favourite_count(self)->list:
+    def find_favourite_count(self) -> list:
         favorite_count = []
         for tweet in self.tweets_list:
-            if 'retweeted_status' in tweet.keys():
-                favorite_count.append(tweet['retweeted_status']['favorite_count'])
-            else: favorite_count.append(0)
-    
+            if 'favourites_count' in tweet.keys():
+                favorite_count.append(
+                    tweet['favourites_count'])
+            else:
+                favorite_count.append(0)
         return favorite_count
-    
-    def find_retweet_count(self)->list:
-        
+
+    def find_retweet_count(self) -> list:
         retweet_count = []
         for tweet in self.tweets_list:
             if 'retweeted_status' in tweet.keys():
-                retweet_count.append(tweet['retweeted_status']['retweet_count'])
-            else: retweet_count.append(0)
-    
+                retweet_count.append(
+                    tweet['retweeted_status']['retweet_count'])
+            else:
+                retweet_count.append(0)
         return retweet_count
 
-    def find_hashtags(self)->list:
-        hashtags = []
-        for tw in self.tweets_list:
-            hashtags.append(", ".join([hashtag_item['text'] for hashtag_item in tw['entities']['hashtags']]))
-
     def find_hashtags(self) -> list:
-        hashtags = [tw.get('entities', {}).get('hashtags', None)
-                    for tw in self.tweets_list]
-
+        hashtags = []
+        for hs in self.tweets_list:
+            hashtags.append(hs.get('entities', {}).get('hashtags', None))
         return hashtags
 
-    def find_mentions(self)->list:
+    def find_mentions(self) -> list:
         mentions = []
-        for tw in self.tweets_list:
-            mentions.append( ", ".join([mention['screen_name'] for mention in tw['entities']['user_mentions']]))
-
+        for hs in self.tweets_list:
+            mentions.append(", ".join(
+                [mention['screen_name'] for mention in hs['entities']['user_mentions']]))
         return mentions
-    
-    def find_lang(self)->list:
-        lang = [x['lang'] for x in self.tweets_list]
-        
+
+    def find_lang(self) -> list:
+        lang = []
+        for x in self.tweets_list:
+            lang.append(x['user']['lang'])
         return lang
 
-    def find_location(self)->list:
+    def find_location(self) -> list:
         location = []
         for tweet in self.tweets_list:
             location.append(tweet['user']['location'])
-        #print(type(location))    
         return location
-    
-    def get_tweet_df(self, save=True)->pd.DataFrame:
+
+    def get_tweet_df(self, save=False) -> pd.DataFrame:
         """required column to be generated you should be creative and add more features"""
-        
-        columns = ['created_at', 'source', 'original_text','polarity','subjectivity', 'lang', 'favorite_count', 'retweet_count', 
-            'original_author', 'followers_count','friends_count','possibly_sensitive', 'hashtags', 'user_mentions', 'place']
-        
+
+        columns = ['created_at', 'source', 'original_text', 'polarity', 'subjectivity', 'lang', 'favorite_count', 'retweet_count',
+                   'original_author', 'followers_count', 'friends_count', 'possibly_sensitive', 'hashtags', 'user_mentions', 'place']
+
         created_at = self.find_created_time()
         source = self.find_source()
         text = self.find_full_text()
@@ -170,35 +153,20 @@ class TweetDfExtractor:
         hashtags = self.find_hashtags()
         mentions = self.find_mentions()
         location = self.find_location()
-        data = zip(created_at, source, text, polarity, subjectivity, lang, fav_count, retweet_count, screen_name, follower_count, friends_count, sensitivity, hashtags, mentions, location)
+        data = zip(created_at, source, text, polarity, subjectivity, lang, fav_count, retweet_count,
+                   screen_name, follower_count, friends_count, sensitivity, hashtags, mentions, location)
         df = pd.DataFrame(data=data, columns=columns)
-        #print(type(df))
-        
+
         if save:
-            df.to_csv('C:/Users/Gezahegne/AppData/Local/Packages/CanonicalGroupLimited.UbuntuonWindows_79rhkp1fndgsc/LocalState/rootfs/home/10Acadamy/Twitter-Data-Analysis/Economic_Twitter_Data.csv', index=False)
+            df.to_csv('data/Economic_Twitter_Data.csv', index=False)
             print('File Successfully Saved.!!!')
-            
         return df
 
-    
-                    
-def find_full_text(self)->list:
-    try:
-        retweeted_status = [x.get("retweeted_status", {}) for x in self.tweets_list]
-        text =[(x.get("extended_tweet", {})).get("full_text", None) for x in retweeted_status]
-        filtered = []
-        for x in text:
-            if x != None:
-                filtered.append(x)
-                text = ''.join(filtered)
-    except KeyError:
-        text = ''
-    return text
 
 if __name__ == "__main__":
-    
-    _, tweet_list = read_json("C:/Users/Gezahegne/AppData/Local/Packages/CanonicalGroupLimited.UbuntuonWindows_79rhkp1fndgsc/LocalState/rootfs/home/10Acadamy/Twitter-Data-Analysis/Economic_Twitter_Data.json")
-    #print(type(tweet_list))
+    columns = ['created_at', 'source', 'original_text', 'clean_text', 'sentiment', 'polarity', 'subjectivity', 'lang', 'favorite_count', 'retweet_count',
+               'original_author', 'screen_count', 'followers_count', 'friends_count', 'possibly_sensitive', 'hashtags', 'user_mentions', 'place', 'place_coord_boundaries']
+
+    _, tweet_list = read_json("./data/Economic_Twitter_Data.zip")
     tweet = TweetDfExtractor(tweet_list)
-    #print(type(tweet))
-    df = tweet.get_tweet_df()
+    df = tweet.get_tweet_df(True)
