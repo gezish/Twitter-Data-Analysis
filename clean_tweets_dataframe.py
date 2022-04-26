@@ -1,66 +1,83 @@
 import pandas as pd
+import extract_dataframe as ed
 
-class CleanTweets:
-    """
-    This class is responsible for cleaning the twitter dataframe
 
-    Returns:
-    --------
-    A dataframe
+class Clean_Tweets:
     """
-    def __init__(self, df:pd.DataFrame):
+    The PEP8 Standard AMAZING!!!
+    """
+
+    def __init__(self, df: pd.DataFrame):
         self.df = df
         print('Automation in Action...!!!')
-        
-    def drop_unwanted_column(self)->pd.DataFrame:
+
+    def drop_unwanted_column(self, df: pd.DataFrame) -> pd.DataFrame:
         """
         remove rows that has column names. This error originated from
         the data collection stage.  
         """
-        unwanted_rows = self.df[self.df['retweet_count'] == 'retweet_count' ].index
-        self.df.drop(unwanted_rows , inplace=True)
-        self.df = self.df[self.df['polarity'] != 'polarity']
-        
-        return self.df
-    def drop_duplicate(self, df:pd.DataFrame)->pd.DataFrame:
+        unwanted_rows = df[df['retweet_count'] == 'retweet_count'].index
+        df.drop(unwanted_rows, inplace=True)
+        df = df[df['polarity'] != 'polarity']
+
+        return df
+
+    def drop_duplicate(self, df: pd.DataFrame) -> pd.DataFrame:
         """
         drop duplicate rows
         """
-        
-        self.df = self.df.drop_duplicates().drop_duplicates(subset='original_text')
-        
+        df.drop_duplicates(inplace=True)
+
         return df
-    def convert_to_datetime(self, df:pd.DataFrame)->pd.DataFrame:
+
+    def convert_to_datetime(self, df: pd.DataFrame) -> pd.DataFrame:
         """
         convert column to datetime
         """
-        self.df['created_at'] = pd.to_datetime(self.df['created_at'], errors='coerce')
-        
-        self.df = self.df[self.df['created_at'] >= '2020-12-31' ]
-        
-        return self.df
-    
-    def convert_to_numbers(self)->pd.DataFrame:
+
+        df['created_at'] = pd.to_datetime(
+            df['created_at'])
+
+        return df
+
+    def convert_to_numbers(self, df: pd.DataFrame) -> pd.DataFrame:
         """
         convert columns like polarity, subjectivity, retweet_count
         favorite_count etc to numbers
         """
-        self.df['polarity'] = pd.to_numeric(self.df['polarity'], errors='coerce')
-        self.df['retweet_count'] = pd.to_numeric(self.df['retweet_count'], errors='coerce')
-        self.df['favorite_count'] = pd.to_numeric(self.df['favorite_count'], errors='coerce')
-        
-        return self.df
-    
-    def remove_non_english_tweets(self)->pd.DataFrame:
+        df['polarity'] = pd.to_numeric(df["polarity"])
+        df["subjectivity"] = pd.to_numeric(df["subjectivity"])
+        df["retweet_count"] = pd.to_numeric(df["retweet_count"])
+        df["favorite_count"] = pd.to_numeric(df["favorite_count"])
+#         df["friends_count "] = pd.to_numeric(df["friends_count"])
+
+        return df
+
+    def handle_missing_values(self, df: pd.DataFrame) -> pd.DataFrame:
+        """
+            handle missing values
+        """
+
+        df['possibly_sensitive'] = df['possibly_sensitive'].fillna(0)
+        df['place'] = df['place'].fillna(" ")
+        df['hashtags'] = df['hashtags'].fillna(" ")
+        df['user_mentions'] = df['user_mentions'].fillna(" ")
+        df['retweet_count'] = df['retweet_count'].fillna(0)
+
+        return df
+
+    def remove_non_english_tweets(self, df: pd.DataFrame) -> pd.DataFrame:
         """
         remove non english tweets from lang
         """
-        
-        self.df = self.df.query("lang == 'en' ")
-        
-        return self.df
 
-if __name__ == "__main__":
-    tweet_df = pd.read_csv("C:/Users/Gezahegne/AppData/Local/Packages/CanonicalGroupLimited.UbuntuonWindows_79rhkp1fndgsc/LocalState/rootfs/home/10Acadamy/Twitter-Data-Analysis/Economic_Twitter_Data.csv")
-    #print(type(tweet_df))
-    cleaner = CleanTweets(tweet_df)
+        df = df.drop(df[df['lang'] != 'en'].index)
+
+        return df
+
+
+if __name__ == '__main__':
+    _, tweet_list = ed.read_json("data/Economic_Twitter_Data.zip")
+    tweet = ed.TweetDfExtractor(tweet_list)
+    df = tweet.get_tweet_df(True)
+    ola = Clean_Tweets(df)
