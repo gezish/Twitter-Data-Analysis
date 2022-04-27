@@ -74,6 +74,14 @@ class Clean_Tweets:
         df = df.drop(df[df['lang'] != 'en'].index)
 
         return df
+    
+    def remove_special_characters(self, df: pd.DataFrame) -> pd.DataFrame:
+        """
+        remove all characters except for [a-z, A-Z and #]
+        """
+        df['original_text'] = df['original_text'].str.replace(
+            "[^a-zA-Z#]", " ")
+        return df
 
 
 if __name__ == '__main__':
