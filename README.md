@@ -1,23 +1,17 @@
 # Twitter-Data-Analysis
+## Introduction
+Twitter is one of the biggest social media platforms which allows many people to interact with each other by posting their thoughts called tweets, about certain topics or issues. Analyzing the tweets helps to track what's being thought and can give interesting insights, into the sentiments of people, their opinions towards a particular topic, product, service, and the general trends in the community. 
+## Objective
+The main objective of this task is:
+- 	To find the sentiment of the text data. That is to identify if the tweets have a Negative, Positive, or Neutral sentiment.
+-	Train, test, and validate machine learning model
+-	Deploy the best model which fits the data and build a dashboard
+## File Organization
+- In the main folder there are scripts used to extract the data set 
+- the data folder contains the twitter data used 
+- The test folder includes scripts used for unit test 
+- The two notbook folders contain the data pre-processing and visualization notebooks
+- my sql_and_streamlit folder contain the .sql schema ns python script to run the dashboard, it has three pages inclusing the main page
+- anaconda jupyter notebook and vscode are the maintools used 
+- for more https://medium.com/@enggezahegn.w/twitter-data-analysis-280d4e21cb9c    
 
-### So here are the bare minimum requirement for completing this task
-
-1. Fork repository to your github account
-2. Create a branch called “fix_bug” to fix the bugs in the fix_clean_tweets_dataframe.py and fix_extract_dataframe.py 
-3. In branch `fix_bug` copy or rename `fix_clean_tweets_dataframe.py` to `clean_tweets_dataframe.py` and `fix_extract_dataframe.py`  to `extract_dataframe.py` 
-4. Fix the bugs on `clean_tweets_dataframe.py` and `extract_dataframe.py` 
-5. Multiple times push the code you are working on to git, and once the fix is complete, merge the `fix_bug` branch to master
-6. Create a new branch called `make_unittest` for creating a new unit test for extract_dataframe.py code.
-7. After completing the unit test writing, merge  “make_unittest”  to main branch
-8. In all cases when you merge, make sure you first do Pull Request, review, then accept the merge.
-9. Setup Github Actions CI to your repository such that when you git push new code (or merge a branch) to the main branch, the unit test in tests/*.py runs automatically. 10. All tests should pass.
-
-After Completing this Challenge, you would have explore  
-
-- Unittesting
-- Modular Coding
-- Software Engineering Best Practices
-- Python Package Structure
-- Bug Fix (Debugging)
-
-Have Fun and Cheers
